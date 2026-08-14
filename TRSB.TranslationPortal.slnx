@@ -1,0 +1,7 @@
+<Solution>
+  <Project Path="04-Web/04.Web.csproj" />
+  <Project Path="Application/02.Application.csproj" />
+  <Project Path="Domain/01.Domain.csproj" />
+  <Project Path="Infrastructure/03.Infrastructure.csproj" />
+  <Project Path="TRSB.TranslationPortal.Tests/99.TRSB.TranslationPortal.Tests.csproj" />
+</Solution>
