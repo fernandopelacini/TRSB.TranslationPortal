@@ -1,0 +1,52 @@
+name: .NET
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Bump version and push tag
+      if: github.ref == 'refs/heads/master' && github.event_name == 'push'
+      id: bump
+      uses: mathieudutour/github-tag-action@v6.1
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        default_bump: patch
+        tag_prefix: "v"
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 9.0.103
+        include-prerelease: false 
+        runtime: none
+
+    - name: Check dotnet version
+      run: dotnet --version
+
+    - name: Restore dependencies
+      run: dotnet restore
+
+    - name: Build with versioning
+      run: |
+        if [ "${{ github.ref }}" = "refs/heads/master" ] && [ "${{ github.event_name }}" = "push" ]; then
+          dotnet build --no-restore \
+          -p:Version=${{ steps.bump.outputs.new_version }} \
+          -p:AssemblyVersion=${{ steps.bump.outputs.new_version }} \
+          -p:FileVersion=${{ steps.bump.outputs.new_version }} \
+          -p:InformationalVersion="${{ steps.bump.outputs.new_version }}+${{ github.sha }}"
+        else
+          dotnet build --no-restore
+        fi
+    
+    - name: Test
+      run: dotnet test --no-build --verbosity normal
