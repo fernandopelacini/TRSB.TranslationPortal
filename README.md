@@ -136,7 +136,6 @@ CREATE DATABASE TranslationPortal;
 2. Configure connection string
 04-Web/appsettings.json:
 ```json
-json
 "ConnectionStrings": {
   "DefaultConnection": "Server=localhost;Database=TranslationPortal;Trusted_Connection=True;TrustServerCertificate=True;"
 }
