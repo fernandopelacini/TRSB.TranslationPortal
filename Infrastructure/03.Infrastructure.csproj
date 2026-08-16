@@ -8,7 +8,6 @@
 
   <ItemGroup>
     <Folder Include="Migrations\" />
-    <Folder Include="Services\" />
   </ItemGroup>
 
   <ItemGroup>
@@ -25,6 +24,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Application\02.Application.csproj" />
     <ProjectReference Include="..\Domain\01.Domain.csproj" />
   </ItemGroup>
 
