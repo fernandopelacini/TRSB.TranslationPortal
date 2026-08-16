@@ -1,3 +1,10 @@
+using Application.Commands.CreateTranslationRequest;
+using Application.Interfaces;
+using Application.Services;
+using Infrastructure.Repositories;
+using FluentValidation;
+using Application.Validators;
+
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddAuthentication("Cookies")
@@ -9,6 +16,17 @@ builder.Services.AddAuthentication("Cookies")
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+builder.Services.AddMediatR(cfg =>
+{
+    cfg.RegisterServicesFromAssembly(typeof(CreateTranslationRequestHandler).Assembly);
+});
+
+//FluentValidations
+builder.Services.AddValidatorsFromAssembly(typeof(RegisterUserValidator).Assembly);
+
+builder.Services.AddScoped<ITranslationRequestRepository, TranslationRequestRepository>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IJwtService, JwtService>();
 
 var app = builder.Build();
 
@@ -23,6 +41,18 @@ app.UseHttpsRedirection();
 app.UseHsts();
 app.UseRouting();
 
+
+app.Use(async (context, next) =>
+{
+    var token = context.Request.Cookies["AuthToken"];
+    if (!string.IsNullOrEmpty(token))
+    {
+        context.Request.Headers.Authorization = $"Bearer {token}";
+    }
+    await next();
+});
+
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapStaticAssets();
