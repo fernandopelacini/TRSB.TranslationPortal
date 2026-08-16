@@ -83,11 +83,18 @@ ReverseEngine → reverses text
 
 UppercaseEngine → converts text to uppercase
 
-A TranslationEngineSelector chooses the engine based on the user’s organization:
+~~A TranslationEngineSelector chooses the engine based on the user’s organization:~~
 
-Alpha → Reverse
+~~Alpha → Reverse~~
 
-Beta → Uppercase
+~~Beta → Uppercase~~
+
+A TranslationEngineSelector chooses a engine randomly:
+
+Reverse => Original text is reversed.
+UpperCase => Original text is converted to uppercase.
+Rotate => Text is replace using an old chiper technique.
+
 
 Used in CompleteTranslationRequestHandler.
 
