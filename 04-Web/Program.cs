@@ -1,12 +1,19 @@
 using Application.Commands.CreateTranslationRequest;
 using Application.Interfaces;
 using Application.Services;
-using Infrastructure.Repositories;
-using FluentValidation;
 using Application.Validators;
+using FluentValidation;
+using Infrastructure;
+using Infrastructure.Repositories;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
+//DB Context
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+// Authentication
 builder.Services.AddAuthentication("Cookies")
     .AddCookie("Cookies", options =>
     {
@@ -14,7 +21,7 @@ builder.Services.AddAuthentication("Cookies")
         options.LogoutPath = "/Account/Logout";
     });
 
-// Add services to the container.
+// MVC + MediatR
 builder.Services.AddControllersWithViews();
 builder.Services.AddMediatR(cfg =>
 {
@@ -24,6 +31,7 @@ builder.Services.AddMediatR(cfg =>
 //FluentValidations
 builder.Services.AddValidatorsFromAssembly(typeof(RegisterUserValidator).Assembly);
 
+//Repositories and Services
 builder.Services.AddScoped<ITranslationRequestRepository, TranslationRequestRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IJwtService, JwtService>();
