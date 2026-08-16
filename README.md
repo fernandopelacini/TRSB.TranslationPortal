@@ -26,7 +26,7 @@ EF Core + SQL Server
 MVC + API separation
 
 🏗️ Architecture
-Code
+```Code
 TRSB.TranslationPortal
 │
 ├── 01-Domain
@@ -49,6 +49,7 @@ TRSB.TranslationPortal
     ├── API Controllers (TranslationController)
     ├── Views (Login, Register, MyRequests, Create, Details)
     └── Program.cs (DI, Auth, Routing)
+```
 🔐 Authentication
 The application uses:
 
@@ -129,27 +130,32 @@ FluentValidation
 
 Database Setup
 1. Create database
-sql
+```sql
 CREATE DATABASE TranslationPortal;
+```
 2. Configure connection string
 04-Web/appsettings.json:
-
+```json
 json
 "ConnectionStrings": {
   "DefaultConnection": "Server=localhost;Database=TranslationPortal;Trusted_Connection=True;TrustServerCertificate=True;"
 }
+```
 3. Apply migrations
 From 04-Web:
 
-bash
+```bash
 dotnet ef database update
+```
 🚀 Running the Application
 1. Build
-bash
+```bash
 dotnet build
+```
 2. Run
-bash
+```bash
 dotnet run --project 04-Web
+```
 App starts at:
 
 Code
@@ -158,8 +164,9 @@ http://localhost:5000
 HTTPS redirection is enabled.
 
 📦 Publishing for Production
-bash
+```bash
 dotnet publish -c Release -o ./publish
+```
 Deploy the publish folder to:
 
 IIS
