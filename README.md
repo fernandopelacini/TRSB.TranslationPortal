@@ -205,3 +205,7 @@ Verify translation engine selection
 Verify organization isolation
 
 Verify HTTPS redirection
+
+Bonus:  
+We included a small demo endpoint that intentionally returns 403 Forbidden  
+to showcase how authorization failures are handled.
