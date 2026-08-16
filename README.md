@@ -110,6 +110,13 @@ Complete translation (API)
 
 Organization isolation
 
+Processing Behavior (Simplified for Prototype)
+The test requires three statuses: Soumise, En traitement, Complétée.
+For simplicity, the translation is processed synchronously when the user clicks Traiter.
+The request briefly enters En traitement internally, then immediately becomes Complétée.
+In a real production system, this step would be handled by a background worker or queue.
+This simplification is intentional and aligns with the test’s guideline to keep things simple.
+
 Security
 HTTPS redirection
 
