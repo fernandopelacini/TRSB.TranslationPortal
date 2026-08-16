@@ -4,12 +4,19 @@
 
 <h2>Welcome</h2>
 
-@if (User.Identity.IsAuthenticated)
+@if (!User.Identity.IsAuthenticated)
 {
-    <p>You are logged in as @User.Identity.Name</p>
-    <a asp-controller="User" asp-action="Logout">Logout</a>
+    <p>
+        <a asp-controller="User" asp-action="Login">Login</a> |
+        <a asp-controller="User" asp-action="Register">Register</a>
+    </p>
 }
 else
 {
-    <a asp-controller="User" asp-action="Login">Login</a>
+    <p>You are logged in as @User.Identity.Name</p>
+    <a asp-controller="User" asp-action="Logout">Logout</a>
+
+    <p>
+        <a asp-controller="TranslationPage" asp-action="MyRequests">My Translation Requests</a>
+    </p>
 }
