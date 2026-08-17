@@ -2,7 +2,7 @@
 
 namespace Application.Commands.CompleteTranslationRequest
 {
-    public record CompleteTranslationRequestCommand(int RequestId, string TranslatedText) : IRequest<bool> 
+    public record CompleteTranslationRequestCommand(int RequestId, string SourceText) : IRequest<bool> 
     {
     }
 }
