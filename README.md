@@ -69,12 +69,19 @@ Users must never access translation requests from another organization.
 This is enforced in:
 
 Query handlers
+```csharp
+///GetTranslationRequestByIdHandler
+if (entity.OrganizationId != request.OrganizationId)
+    return null;
+...
+```
 
 API controllers
 
 MVC controllers
 
 All queries include OrganizationId, and handlers return null if the request does not belong to the user’s organization.
+
 
 🔧 Strategy Pattern (Translation Engines)
 The system includes two translation engines:
