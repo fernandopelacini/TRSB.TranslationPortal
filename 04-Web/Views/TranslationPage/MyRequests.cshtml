@@ -1,34 +1,83 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+﻿@using Domain.Enums
+@using _04_Web.Helpers
 @model List<Application.DTOs.TranslationRequestDto>
 
-<h2>My Translation Requests</h2>
+@{
+    var flags = FlagHelper.Flags;
+}
 
-<table class="table">
-    <thead>
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2><i class="bi bi-list-task"></i> My Translation Requests</h2>
+
+    <a asp-action="Create" class="btn btn-primary">
+        <i class="bi bi-plus-circle"></i> Submit New Request
+    </a>
+</div>
+
+<table class="table table-striped table-hover align-middle">
+    <thead class="table-light">
         <tr>
-            <th>ID</th>
-            <th>Source</th>
-            <th>Target</th>
-            <th>Status</th>
-            <th></th>
+            <th><i class="bi bi-hash"></i> ID</th>
+            <th><i class="bi bi-flag"></i> Source</th>
+            <th><i class="bi bi-flag-fill"></i> Target</th>
+            <th><i class="bi bi-info-circle"></i> Status</th>
+            <th><i class="bi bi-calendar-plus"></i> Created</th>
+            <th><i class="bi bi-calendar-check"></i> Completed</th>
+            <th><i class="bi bi-eye"></i> Details</th>
         </tr>
     </thead>
+
     <tbody>
         @foreach (var r in Model)
         {
             <tr>
+
                 <td>@r.Id</td>
-                <td>@r.SourceLanguage</td>
-                <td>@r.TargetLanguage</td>
-                <td>@r.Status</td>
+
+                <td>@flags.GetValueOrDefault(r.SourceLanguage, "🏳️") @r.SourceLanguage</td>
+                <td>@flags.GetValueOrDefault(r.TargetLanguage, "🏳️") @r.TargetLanguage</td>
+
                 <td>
-                    <a asp-action="Details" asp-route-id="@r.Id">View</a>
+                    @switch (r.Status)
+                    {
+                        case TranslationStatus.Soumise:
+                            <span class="badge bg-secondary">
+                                <i class="bi bi-envelope"></i> Soumise
+                            </span>
+                            break;
+
+                        case TranslationStatus.EnTraitement:
+                            <span class="badge bg-warning text-dark">
+                                <i class="bi bi-gear"></i> En traitement
+                            </span>
+                            break;
+
+                        case TranslationStatus.Completee:
+                            <span class="badge bg-success">
+                                <i class="bi bi-check-circle"></i> Complétée
+                            </span>
+                            break;
+                    }
+                </td>
+
+                <td>@r.CreatedAt.ToString("yyyy-MM-dd HH:mm")</td>
+                <td>@(r.CompletedAt?.ToString("yyyy-MM-dd HH:mm") ?? "-")</td>
+
+                <td>
+                    <a asp-action="Details" asp-route-id="@r.Id" class="btn btn-sm btn-outline-primary">
+                        <i class="bi bi-eye"></i>
+                    </a>
+                </td>
+
+                <td>
+                    @if (r.Status == TranslationStatus.Soumise)
+                    {
+                        <a asp-controller="Translation" asp-action="Process" asp-route-id="@r.Id" class="btn btn-sm btn-outline-info">
+                            <i class="bi bi-gear"></i> Traiter
+                        </a>
+                    }
                 </td>
             </tr>
         }
     </tbody>
 </table>
-
-<a asp-action="Create" class="btn btn-primary">Submit New Request</a>

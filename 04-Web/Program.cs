@@ -6,20 +6,41 @@ using FluentValidation;
 using Infrastructure;
 using Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
 
 //DB Context
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseSqlServer(builder.Configuration.GetConnectionString("Default")));
 
 // Authentication
-builder.Services.AddAuthentication("Cookies")
-    .AddCookie("Cookies", options =>
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = "JwtBearer";
+    options.DefaultChallengeScheme = "JwtBearer";
+})
+.AddJwtBearer("JwtBearer", options =>
+{
+    options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
     {
-        options.LoginPath = "/Account/Login";
-        options.LogoutPath = "/Account/Logout";
-    });
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        ValidIssuer = builder.Configuration["Jwt:Issuer"],
+        ValidAudience = builder.Configuration["Jwt:Audience"],
+        IssuerSigningKey = new SymmetricSecurityKey(
+            System.Text.Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
+    };
+}).AddCookie("Cookies", options =>
+{
+    options.LoginPath = "/User/Login";
+    options.LogoutPath = "/User/Logout";
+}); 
+
+
+
 
 // MVC + MediatR
 builder.Services.AddControllersWithViews();
@@ -35,14 +56,14 @@ builder.Services.AddValidatorsFromAssembly(typeof(RegisterUserValidator).Assembl
 builder.Services.AddScoped<ITranslationRequestRepository, TranslationRequestRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IJwtService, JwtService>();
+builder.Services.AddScoped<ITranslationEngine, UppercaseEngine>();
+builder.Services.AddScoped<ITranslationEngine, ReverseEngine>();
+builder.Services.AddScoped<ITranslationEngine, RotateEngine>();
+builder.Services.AddScoped<TranslationEngineSelector>();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-if (!app.Environment.IsDevelopment())
-{
-    app.UseExceptionHandler("/Home/Error");
-}
+app.UseStatusCodePagesWithReExecute("/Error/{0}");
 
 app.UseHttpsRedirection();
 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.

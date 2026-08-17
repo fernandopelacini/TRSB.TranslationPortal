@@ -2,7 +2,7 @@
 
 namespace Application.Commands.RegisterUserRequest
 {
-    public record RegisterUserCommand(string username, string fullname, string email, string password, int organizationId) : IRequest<bool>
+    public record RegisterUserCommand(string username, string fullname, string email, string password) : IRequest<bool>
     {
     }
 }

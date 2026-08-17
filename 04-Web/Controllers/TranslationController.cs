@@ -1,5 +1,6 @@
 ﻿using Application.Commands.CompleteTranslationRequest;
 using Application.Commands.CreateTranslationRequest;
+using Application.Commands.ProcessTranslationRequest;
 using Application.Queries.GetTranslationRequestById;
 using Application.Queries.GetUserRequests;
 using MediatR;
@@ -39,7 +40,7 @@ namespace _04_Web.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id, CancellationToken ct)
         {
-            int orgId = int.Parse(User.FindFirst("organizationId").Value);
+            int orgId = int.Parse(User.FindFirst("organizationId")?.Value ?? "0");
 
             var result = await _mediator.Send(new GetTranslationRequestByIdQuery(id, orgId), ct);
             return result is null ? NotFound() : Ok(result);
@@ -50,6 +51,13 @@ namespace _04_Web.Controllers
         {
             var result = await _mediator.Send(new GetUserRequestsQuery(userId), ct);
             return Ok(result);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Process(int id, CancellationToken ct)
+        {
+            await _mediator.Send(new ProcessTranslationRequestCommand(id), ct);
+            return RedirectToAction(  "MyRequests", "TranslationPage");
         }
 
     }

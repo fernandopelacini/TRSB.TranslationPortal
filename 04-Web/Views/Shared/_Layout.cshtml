@@ -3,48 +3,84 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - _04_Web</title>
-    <script type="importmap"></script>
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/_04_Web.styles.css" asp-append-version="true" />
+    <title>@ViewData["Title"] - TRSB Translation Portal</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+
 </head>
+
 <body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index"><i class="fa-regular fa-house" aria-hidden="true"></i> </a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
+    <partial name="_LoadingSpinner" />
+    <!-- NAVBAR -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
+        <div class="container-fluid">
+            <a class="navbar-brand" asp-controller="Home" asp-action="Index">TRSB Portal</a>
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+
+                    @if (User.Identity.IsAuthenticated)
+                    {
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                            <a class="nav-link" asp-controller="TranslationPage" asp-action="MyRequests">Mes demandes</a>
+                        </li>
+                    }
+                </ul>
+
+                <ul class="navbar-nav">
+                    @if (User.Identity.IsAuthenticated)
+                    {
+                        <li class="nav-item">
+                            <span class="navbar-text me-3">
+                                Logged in as <strong>@User.Identity.Name</strong>
+                                <br />
+                                Organization: <strong>@User.FindFirst("organizationName")?.Value</strong>
+                            </span>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="User" asp-action="Logout">Logout</a>
+                        </li>
+                    }
+                    else
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="User" asp-action="Login">Login</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                            <a class="nav-link" asp-controller="User" asp-action="Register">Register</a>
                         </li>
-                    </ul>
-                </div>
+                    }
+                </ul>
             </div>
-        </nav>
-    </header>
+        </div>
+    </nav>
+
+    <!-- MAIN CONTENT -->
     <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
+        @RenderBody()
     </div>
 
-    <footer class="border-top footer text-muted">
+    <!-- FOOTER -->
+    <footer class="bg-light text-center text-muted mt-5 py-3">
         <div class="container">
-            &copy; 2026 - _04_Web - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+            <small>© @DateTime.Now.Year TRSB Translation Portal — Built by Fernando</small>
         </div>
+        <div>
+            <a asp-controller="TranslationPage" asp-action="ForbiddenDemo" class="text-muted">
+                Forbidden Demo (403)
+            </a>
+        </div>
+            
     </footer>
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
-    @await RenderSectionAsync("Scripts", required: false)
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    @RenderSection("Scripts", required: false)
 </body>
 </html>

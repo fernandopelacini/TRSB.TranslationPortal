@@ -20,7 +20,7 @@ namespace _04_Web.Controllers
         [HttpGet]
         public async Task<IActionResult> MyRequests(CancellationToken ct)
         {
-            int userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value);
+            int userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? string.Empty);
 
             var requests = await _mediator.Send(new GetUserRequestsQuery(userId), ct);
 
@@ -30,14 +30,26 @@ namespace _04_Web.Controllers
         [HttpGet]
         public IActionResult Create()
         {
-            return View();
+            var model = new CreateTranslationRequestCommand
+            {
+                Languages =
+                [
+                    "English",
+                    "French",
+                    "Spanish",
+                    "German",
+                    "Italian"
+                    ]
+            };
+
+            return View(model);
         }
 
         [HttpPost]
         public async Task<IActionResult> Create(CreateTranslationRequestCommand cmd, CancellationToken ct)
         {
-            cmd.UserId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value);
-            cmd.OrganizationId = int.Parse(User.FindFirst("organizationId").Value);
+            cmd.UserId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? string.Empty);
+            cmd.OrganizationId = int.Parse(User.FindFirst("organizationId")?.Value ?? "0");
 
             var id = await _mediator.Send(cmd, ct);
 
@@ -47,7 +59,7 @@ namespace _04_Web.Controllers
         [HttpGet]
         public async Task<IActionResult> Details(int id, CancellationToken ct)
         {
-            int orgId = int.Parse(User.FindFirst("organizationId").Value);
+            int orgId = int.Parse(User.FindFirst("organizationId")?.Value ?? "0");
 
             var request = await _mediator.Send(new GetTranslationRequestByIdQuery(id, orgId), ct);
 
@@ -55,6 +67,13 @@ namespace _04_Web.Controllers
                 return NotFound();
 
             return View(request);
+        }
+
+        [HttpGet]
+        [Authorize]
+        public IActionResult ForbiddenDemo()
+        {
+            return Forbid(); // 403
         }
     }
 }

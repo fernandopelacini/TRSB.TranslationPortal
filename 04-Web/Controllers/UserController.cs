@@ -27,9 +27,15 @@ namespace _04_Web.Controllers
         public async Task<IActionResult> Register(RegisterUserCommand cmd, CancellationToken cancellationToken)
         {
             var result = await _mediator.Send(cmd, cancellationToken);
-            return result
-                ? Ok("User registered successfully")
-                : BadRequest("User registration failed");
+
+            if (!result)
+            {
+                ModelState.AddModelError("", "Registration failed.");
+                return View(cmd);
+            }
+
+            TempData["SuccessMessage"] = "Your account has been created. You can now log in.";
+            return RedirectToAction("Login");
         }
 
         [HttpGet]
@@ -46,7 +52,11 @@ namespace _04_Web.Controllers
             var token = await _mediator.Send(cmd, ct);
 
             if (string.IsNullOrEmpty(token))
-                return Unauthorized("Invalid username/email or password");
+            {
+                ModelState.AddModelError("", "Invalid username/email or password");
+                return View(cmd);
+            }
+                
 
             Response.Cookies.Append("AuthToken", token, new CookieOptions
             {

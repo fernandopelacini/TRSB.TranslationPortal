@@ -1,23 +1,87 @@
 ﻿@using Domain.Enums
-@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+@using _04_Web.Helpers
 @model Application.DTOs.TranslationRequestDto
 
-<h2>Translation Details</h2>
-
-<p><strong>ID:</strong> @Model.Id</p>
-<p><strong>Status:</strong> @Model.Status</p>
-
-<p><strong>Original Text:</strong></p>
-<p>@Model.SourceText</p>
-
-@if (Model.Status == TranslationStatus.Completee)
-{
-    <p><strong>Translated Text:</strong></p>
-    <p>@Model.TranslatedText</p>
+@{
+    var flags = FlagHelper.Flags;
 }
-else
-{
-    <p><em>Translation not completed yet.</em></p>
-}
+<div class="card shadow-sm">
+    <div class="card-header bg-primary text-white">
+        <i class="bi bi-file-text"></i> Translation Details
+    </div>
+
+    <div class="card-body">
+
+        <p>
+            <strong><i class="bi bi-hash"></i> ID:</strong>
+            @Model.Id
+        </p>
+
+        <p>
+            <strong><i class="bi bi-info-circle"></i> Status:</strong>
+            @switch (Model.Status)
+            {
+                case TranslationStatus.Soumise:
+                    <span class="badge bg-secondary">
+                        <i class="bi bi-envelope"></i> Soumise
+                    </span>
+                    break;
+
+                case TranslationStatus.EnTraitement:
+                    <span class="badge bg-warning text-dark">
+                        <i class="bi bi-gear"></i> En traitement
+                    </span>
+                    break;
+
+                case TranslationStatus.Completee:
+                    <span class="badge bg-success">
+                        <i class="bi bi-check-circle"></i> Complétée
+                    </span>
+                    break;
+            }
+        </p>
+
+        <p>
+            <strong><i class="bi bi-flag"></i> Source Language:</strong>
+            @flags.GetValueOrDefault(Model.SourceLanguage, "🏳️") @Model.SourceLanguage
+        </p>
+
+        <p>
+            <strong><i class="bi bi-flag-fill"></i> Target Language:</strong>
+            @flags.GetValueOrDefault(Model.TargetLanguage, "🏳️") @Model.TargetLanguage
+        </p>
+        <p>
+            <strong><i class="bi bi-calendar-plus"></i> Created:</strong>
+            @Model.CreatedAt.ToString("yyyy-MM-dd HH:mm")
+        </p>
+        @if (Model.CompletedAt != null)
+        {
+            <p>
+                <strong><i class="bi bi-calendar-check"></i> Completed:</strong>
+                @Model.CompletedAt?.ToString("yyyy-MM-dd HH:mm")
+            </p>
+        }
+        <hr />
+
+        <h5><i class="bi bi-chat-left-text"></i> Original Text</h5>
+        <p class="border rounded p-3 bg-light">@Model.SourceText</p>
+
+        @if (Model.Status == TranslationStatus.Completee)
+        {
+            <h5 class="mt-4"><i class="bi bi-translate"></i> Translated Text</h5>
+            <p class="border rounded p-3 bg-light">@Model.TranslatedText</p>
+        }
+        else
+        {
+            <p class="mt-4 text-muted">
+                <i class="bi bi-hourglass-split"></i>
+                Translation not completed yet.
+            </p>
+        }
+
+        <a asp-action="MyRequests" class="btn btn-secondary mt-3">
+            <i class="bi bi-arrow-left"></i> Back to My Requests
+        </a>
+    </div>
+</div>
+@* FOR DEMO PURPOSES: I'm not adding pagination or filtering to the MyRequests page. *@
