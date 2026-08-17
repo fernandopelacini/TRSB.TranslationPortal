@@ -1,25 +1,116 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+﻿@using _04_Web.Helpers
 @model Application.Commands.CreateTranslationRequest.CreateTranslationRequestCommand
+
+@{
+    var flags = FlagHelper.Flags;
+}
 
 <h2>Submit Translation Request</h2>
 
 <form asp-action="Create" method="post">
-    <div class="form-group">
-        <label>Source Text</label>
-        <textarea asp-for="SourceText" class="form-control"></textarea>
+    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+    <div class="mb-3">
+        <label asp-for="SourceText" class="form-label">Source Text</label>
+        <textarea asp-for="SourceText" class="form-control" rows="5"></textarea>
+        <small id="charCount" class="text-muted">0 characters</small>
+        <span asp-validation-for="SourceText" class="text-danger"></span>
     </div>
 
-    <div class="form-group">
-        <label>Source Language</label>
-        <input asp-for="SourceLanguage" class="form-control" />
+    <div class="mb-3">
+        <label asp-for="SourceLanguage" class="form-label">Source Language</label>
+        <select asp-for="SourceLanguage" class="form-select">
+            @foreach (var lang in Model.Languages)
+            {
+                <option value="@lang">
+                    @flags.GetValueOrDefault(lang, "🏳️") @lang
+                </option>
+            }
+        </select>
+        <span asp-validation-for="SourceLanguage" class="text-danger"></span>
     </div>
 
-    <div class="form-group">
-        <label>Target Language</label>
-        <input asp-for="TargetLanguage" class="form-control" />
+    <div class="mb-3">
+        <label asp-for="TargetLanguage" class="form-label">Target Language</label>
+        <select asp-for="TargetLanguage" class="form-select">
+            @foreach (var lang in Model.Languages)
+            {
+                <option value="@lang">
+                    @flags.GetValueOrDefault(lang, "🏳️") @lang
+                </option>
+            }
+        </select>
+        <span asp-validation-for="TargetLanguage" class="text-danger"></span>
     </div>
 
-    <button type="submit" class="btn btn-success">Submit</button>
+    <button type="button" id="swapBtn" class="btn btn-outline-secondary mt-2">
+        <i class="bi bi-arrow-left-right"></i> Swap Languages
+    </button>
+
+    <button type="submit" class="btn btn-success mt-3">Submit</button>
 </form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        //Swap languages
+        const sourceSelect = document.querySelector("[name='SourceLanguage']");
+        const targetSelect = document.querySelector("[name='TargetLanguage']");
+        const swapBtn = document.getElementById("swapBtn");
+
+        swapBtn.addEventListener("click", () => {
+            const temp = sourceSelect.value;
+            sourceSelect.value = targetSelect.value;
+            targetSelect.value = temp;
+        });
+
+        //Character counter
+        const sourceText = document.querySelector("[name='SourceText']");
+        const charCount = document.getElementById("charCount");
+
+        sourceText.addEventListener("input", () => {
+            charCount.textContent = `${sourceText.value.length} characters`;
+        });
+    </script>
+    <script>
+        const form = document.querySelector("form");
+        const spinner = document.getElementById("loadingSpinner");
+
+        form.addEventListener("submit", function(e) {
+
+            const source = document.querySelector("[name='SourceLanguage']").value;
+            const target = document.querySelector("[name='TargetLanguage']").value;
+            const text = document.querySelector("[name='SourceText']").value.trim();
+
+            let errorMessage = "";
+
+            if (!text) {
+                errorMessage = "Source text cannot be empty.";
+            }
+            else if (source === target) {
+                errorMessage = "Source and target languages must be different.";
+            }
+
+            if (errorMessage) {
+                e.stopImmediatePropagation();
+                e.preventDefault();
+
+                spinner.classList.add("d-none");
+
+                let alert = document.getElementById("langAlert");
+                if (!alert) {
+                    alert = document.createElement("div");
+                    alert.id = "langAlert";
+                    alert.className = "alert alert-danger mt-3";
+                    form.prepend(alert);
+                }
+
+                alert.innerText = errorMessage;
+                return;
+            }
+
+            spinner.classList.remove("d-none");
+        }, true);
+    </script>
+}
