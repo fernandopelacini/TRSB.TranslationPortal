@@ -47,6 +47,7 @@ namespace Infrastructure.Repositories
         {
             return await _db.Users
                .AsNoTracking()
+               .Include(o => o.Organization)
                .Where(u => u.UserName == identifier || u.Email == identifier)
                .FirstOrDefaultAsync(cancellationToken);
         }
