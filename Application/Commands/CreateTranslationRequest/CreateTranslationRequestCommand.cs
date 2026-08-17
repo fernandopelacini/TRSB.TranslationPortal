@@ -9,5 +9,7 @@ namespace Application.Commands.CreateTranslationRequest
         public string SourceText { get; set; }
         public string SourceLanguage { get; set; }
         public string TargetLanguage { get; set; }
+        public List<string> Languages { get; set; } = [];
+
     }
 }
