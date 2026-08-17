@@ -26,7 +26,8 @@ namespace Application.Services
             new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
             new Claim(ClaimTypes.Name, user.UserName),
             new Claim(ClaimTypes.Email, user.Email),
-            new Claim("organizationId", user.OrganizationId.ToString())
+            new Claim("organizationId", user.OrganizationId.ToString()),
+            new Claim("organizationName", user.Organization?.Name??"") //Had a wierd issue from time to time where organization was coming null
         };
 
             var token = new JwtSecurityToken(
