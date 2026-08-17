@@ -20,5 +20,6 @@ namespace Domain.Entities
         public string? TranslatedText { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime? CompletedAt { get; set; }
+        public DateTime? ProcessingStartedAt { get; set; }
     }
 }
