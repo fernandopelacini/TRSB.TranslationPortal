@@ -1,10 +1,12 @@
 📘 TRSB Translation Portal — README.md
+
 📝 Overview
+
 The TRSB Translation Portal is a multi‑tenant ASP.NET Core MVC + API application designed for managing translation requests across two predefined organizations:
 
-Alpha Traductions
+- Alpha Traductions
 
-Bêta Légal
+- Bêta Légal
 
 Users can register, log in, submit translation requests, and view completed translations.
 The system enforces strict organization isolation, ensuring users can only access their own organization’s data.
@@ -178,6 +180,12 @@ Automated tests cover:
 - Organization isolation (404 behavior)
 - Engine selection logic
 - These tests ensure that core protections remain intact as the code evolves.
+
+🐳 Why no Docker?
+
+Docker was intentionally omitted to keep the setup simple, as recommended in the test instructions.
+The application runs with a single command ( _dotnet run_) and requires only SQL Server, which is available locally on every developer machines.
+
 
 Database Setup
 1. Create database
