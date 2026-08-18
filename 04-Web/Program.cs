@@ -5,8 +5,10 @@ using Application.Validators;
 using FluentValidation;
 using Infrastructure;
 using Infrastructure.Repositories;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using System.Text.Json;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -61,6 +63,10 @@ builder.Services.AddScoped<ITranslationEngine, ReverseEngine>();
 builder.Services.AddScoped<ITranslationEngine, RotateEngine>();
 builder.Services.AddScoped<TranslationEngineSelector>();
 
+//Health Checks
+builder.Services.AddHealthChecks()
+        .AddDbContextCheck<AppDbContext>("TRSB Database");
+
 var app = builder.Build();
 
 app.UseStatusCodePagesWithReExecute("/Error/{0}");
@@ -91,5 +97,25 @@ app.MapControllerRoute(
     pattern: "{controller=Home}/{action=Index}/{id?}")
     .WithStaticAssets();
 
+app.MapHealthChecks("/health/live");
+app.MapHealthChecks("/health/ready", new HealthCheckOptions
+{
+    ResponseWriter = async (context, report) =>
+    {
+        context.Response.ContentType = "application/json";
+
+        var json = JsonSerializer.Serialize(new
+        {
+            status = report.Status.ToString(),
+            checks = report.Entries.Select(e => new {
+                name = e.Key,
+                status = e.Value.Status.ToString(),
+                description = e.Value.Description
+            })
+        });
+
+        await context.Response.WriteAsync(json);
+    }
+});
 
 app.Run();
