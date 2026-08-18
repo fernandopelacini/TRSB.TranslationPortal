@@ -350,5 +350,5 @@ All architectural decisions, implementation details, and simplifications were in
 
 ⭐ Bonus:  
 
-We included a small demo endpoint that intentionally returns 403 Forbidden  
+I've included a small demo endpoint that intentionally returns 403 Forbidden  
 to showcase how authorization failures are handled.
