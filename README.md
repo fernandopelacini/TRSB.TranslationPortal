@@ -2,24 +2,106 @@
 
 📝 Overview
 
-The TRSB Translation Portal is a multi‑tenant ASP.NET Core MVC + API application designed for managing translation requests across two predefined organizations:
+The TRSB Translation Portal is a multi‑tenant **ASP.NET Core 9 MVC + API** application designed for managing translation requests across two predefined organizations:
 
-- Alpha Traductions
+**- Alpha Traductions
 
-- Bêta Légal
+- Bêta Légal**
 
-Users can register, log in, submit translation requests, and view completed translations.
-The system enforces strict organization isolation, ensuring users can only access their own organization’s data.
+Users can:
 
-The project demonstrates:
+- register
+- Log in
+- Submit translation requests
+- View their organization’s requests
+- View completed translations
+  
+The system enforces strict **organization isolation**, ensuring users can only access data belonging to their own organization.
+
+This project demonstrates:
 
 - Clean architecture
-- MediatR (CQRS)
+- CQRS with MediatR
 - Strategy Pattern
 - FluentValidation
 - JWT + Cookie authentication
-- EF Core + SQL Server
+- EF Core 9 + SQL Server 2025
 - MVC + API separation
+- Automated tests
+
+🚀 How to Run the Application (Quick Start)
+Prerequisites:
+- .NET 9 SDK
+- SQL Server 2025 (or SQL Server 2019/2022 — all compatible)
+- Windows, macOS, or Linux
+
+⤵️ Clone the repository
+```bash
+git clone https://github.com/your-repo/trsb-translation-portal.git
+cd trsb-translation-portal
+```
+
+🗄️ Database Setup
+EF Core migrations automatically create the database if it does not exist.
+
+To initialize the database:
+
+Configure connection string
+Edit 04-Web/appsettings.json:
+
+```json
+"ConnectionStrings": {
+  "DefaultConnection": "Server=localhost;Database=TranslationPortal;Trusted_Connection=True;TrustServerCertificate=True;"
+}
+```
+Apply EF Core migrations
+```bash
+dotnet ef database update --project 03.Infrastructure --startup-project 04.Web
+```
+Run the application
+```bash
+dotnet run --project 04-Web
+```
+The app starts at:
+
+- https://localhost:7296
+- http://localhost:5296
+
+HTTPS redirection is enabled.
+
+🧰 Technologies Used
+
+| Component | Version | Notes |
+| --------- | ------- | ----- |
+| .NET	    | 9.0     | ASP.NET Core MVC + API |
+| EF Core	| 9.0	  | SQL Server provider |
+| SQL Server | 2025	| Any recent version works |
+| MediatR | CQRS | Commands + Queries |
+| FluentValidation | Latest | Input validation |
+| JWT Authentication | Built‑in | Cookies + Bearer |
+| xUnit | Latest | Automated tests |
+
+🩺 Health Check Endpoints
+The application exposes lightweight health endpoints using ASP.NET Core HealthChecks:
+
+Liveness
+Code
+GET /health/live
+Indicates whether the application process is running.
+
+Readiness
+```Code
+GET /health/ready
+```
+
+Includes a database connectivity check:
+
+```csharp
+services.AddHealthChecks()
+    .AddDbContextCheck<AppDbContext>("Database");
+```
+
+These endpoints require no authentication and keep the setup simple, as recommended in the test instructions.
 
 🏗️ Architecture
 ```Code
@@ -66,18 +148,15 @@ Users must never access translation requests from another organization.
 
 This is enforced in:
 
-- Query handlers
+- Controllers and handlers
 ```csharp
 ///GetTranslationRequestByIdHandler
 if (entity.OrganizationId != request.OrganizationId)
     return null;
 ...
 ```
+Returning 404 prevents ID enumeration and avoids leaking resource existence.
 
-- API controllers
-- MVC controllers
-
-All queries include OrganizationId, and handlers return null if the request does not belong to the user’s organization.
 
 🔒Secure Password Storage
 Passwords are never stored in plain text.
@@ -91,56 +170,6 @@ CreatePasswordHash(password, out hash, out salt);
 VerifyPasswordHash(password, hash, salt);
 ```
 This protects user credentials even if the database were compromised.
-
-🔧 Strategy Pattern (Translation Engines)
-The system includes two translation engines:
-
-ReverseEngine → reverses text
-
-UppercaseEngine → converts text to uppercase
-
-~~A TranslationEngineSelector chooses the engine based on the user’s organization:~~
-
-~~Alpha → Reverse~~
-
-~~Beta → Uppercase~~
-
-A TranslationEngineSelector chooses a engine randomly:
-
-Reverse => Original text is reversed.
-UpperCase => Original text is converted to uppercase.
-Rotate => Text is replace using an old chiper technique.
-
-
-Used in CompleteTranslationRequestHandler.
-
-✔️ Features
-
-User:
-- Register (auto‑assigned to Alpha or Beta)
-- Login (email OR username)
-- Logout
-
-Translation Requests
-- Submit new request
-- View own requests (“Mes demandes”)
-- View translation details
-- Complete translation (API)
-- Organization isolation
-
-Processing Behavior (Simplified for Prototype)
-The test requires three statuses: Soumise, En traitement, Complétée.
-For simplicity, the translation is processed synchronously when the user clicks Traiter.
-The request briefly enters En traitement internally, then immediately becomes Complétée.
-In a real production system, this step would be handled by a background worker or queue.
-This simplification is intentional and aligns with the test’s guideline to keep things simple.
-
-- Patterns
-- Strategy Pattern
-- Mediator Pattern (MediatR)
-- Repository Pattern
-- DTOs
-- FluentValidation
 
 🧭 Input Validation (FluentValidation)
 All user‑provided data is validated before processing:
@@ -181,45 +210,56 @@ Automated tests cover:
 - Engine selection logic
 - These tests ensure that core protections remain intact as the code evolves.
 
+🔧 Strategy Pattern (Translation Engines)
+The system includes three translation engines:
+
+~~A TranslationEngineSelector chooses the engine based on the user’s organization:~~
+
+~~Alpha → Reverse~~
+
+~~Beta → Uppercase~~
+
+A TranslationEngineSelector chooses a engine randomly:
+
+Reverse => Original text is reversed.
+UpperCase => Original text is converted to uppercase.
+Rotate => Text is replace using an old chiper technique.
+
+Used in ```CompleteTranslationRequestHandler```.
+
+✔️ Features
+
+User:
+- Register (auto‑assigned to Alpha or Beta)
+- Login (email OR username)
+- Logout
+
+Translation Requests
+- Submit new request
+- View own requests (“Mes demandes”)
+- View translation details
+- Complete translation (API)
+- Organization isolation
+
+Processing Behavior (Simplified for Prototype)
+The test requires three statuses: Soumise, En traitement, Complétée.
+For simplicity, the translation is processed synchronously when the user clicks Traiter.
+The request briefly enters En traitement internally, then immediately becomes Complétée.
+In a real production system, this step would be handled by a background worker or queue.
+This simplification is intentional and aligns with the test’s guideline to keep things simple.
+
+- Patterns
+- Strategy Pattern
+- Mediator Pattern (MediatR)
+- Repository Pattern
+- DTOs
+- FluentValidation
+
 🐳 Why no Docker?
 
 Docker was intentionally omitted to keep the setup simple, as recommended in the test instructions.
+_Garder les choses simples — un choix assumé et documenté vaut mieux qu'une fonctionnalité de plus._
 The application runs with a single command ( _dotnet run_) and requires only SQL Server, which is available locally on every developer machines.
-
-
-Database Setup
-1. Create database
-```sql
-CREATE DATABASE TranslationPortal;
-```
-2. Configure connection string
-04-Web/appsettings.json:
-```json
-"ConnectionStrings": {
-  "DefaultConnection": "Server=localhost;Database=TranslationPortal;Trusted_Connection=True;TrustServerCertificate=True;"
-}
-```
-3. Apply migrations
-From 04-Web:
-
-```bash
-dotnet ef database update
-```
-🚀 Running the Application
-1. Build
-```bash
-dotnet build
-```
-2. Run
-```bash
-dotnet run --project 04-Web
-```
-App starts at:
-
-Code
-https://localhost:5001
-http://localhost:5000
-HTTPS redirection is enabled.
 
 📦 Publishing for Production
 ```bash
@@ -237,27 +277,23 @@ Any ASP.NET Core hosting environment
 
 Ensure environment variable:
 
-Code
+```Code
 ASPNETCORE_ENVIRONMENT=Production
+```
+
 🧪 Smoke Test
 After deployment:
 
-- Register a user → auto‑assigned to Alpha/Beta
-
-- Login with username OR email
-
+- Register a user
+- Login
 - Submit a translation request
-
 - View “Mes demandes”
-
-- Complete a request (API)
-
+- Complete a request
 - Verify translation engine selection
-
 - Verify organization isolation
-
 - Verify HTTPS redirection
+- Test /health/live and /health/ready
 
-Bonus:  
+⭐ Bonus:  
 We included a small demo endpoint that intentionally returns 403 Forbidden  
 to showcase how authorization failures are handled.
