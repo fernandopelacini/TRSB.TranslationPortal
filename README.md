@@ -330,7 +330,19 @@ After deployment:
 - Verify HTTPS redirection
 - Test /health/live and /health/ready
 
-📝 Development Notes
+🔄 Continuous Integration
+
+The repository includes a lightweight GitHub Actions pipeline that:
+
+- Builds the solution
+- Runs all automated tests
+- Generates version tags
+- Publishes build artifacts
+
+This pipeline is optional and not required to run the project.
+It is provided as a development convenience and to demonstrate standard CI practices.
+
+🧩 Development Notes
 
 The project was developed using Visual Studio 2026 Community Edition.
 Microsoft Copilot was used as a coding assistant for generating tests, validators, and documentation.
