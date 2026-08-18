@@ -11,19 +11,13 @@ The system enforces strict organization isolation, ensuring users can only acces
 
 The project demonstrates:
 
-Clean architecture
-
-MediatR (CQRS)
-
-Strategy Pattern
-
-FluentValidation
-
-JWT + Cookie authentication
-
-EF Core + SQL Server
-
-MVC + API separation
+-Clean architecture
+-MediatR (CQRS)
+-Strategy Pattern
+-FluentValidation
+-JWT + Cookie authentication
+-EF Core + SQL Server
+-MVC + API separation
 
 🏗️ Architecture
 ```Code
@@ -50,14 +44,16 @@ TRSB.TranslationPortal
     ├── Views (Login, Register, MyRequests, Create, Details)
     └── Program.cs (DI, Auth, Routing)
 ```
-🔐 Authentication
+🔐 Security
+
+🔑 Authentication & Authorization
 The application uses:
 
-JWT tokens generated at login
-
-Tokens stored in HTTP-only cookies
-
-Cookies injected into Authorization: Bearer <token> header
+-JWT tokens generated at login
+-Tokens stored in HTTP-only cookies
+-Cookies injected into Authorization: Bearer <token> header
+-HTTPS redirection
+-Claims-based authorization
 
 [Authorize] used for protected pages
 
@@ -68,7 +64,7 @@ Users must never access translation requests from another organization.
 
 This is enforced in:
 
-Query handlers
+-Query handlers
 ```csharp
 ///GetTranslationRequestByIdHandler
 if (entity.OrganizationId != request.OrganizationId)
@@ -76,12 +72,23 @@ if (entity.OrganizationId != request.OrganizationId)
 ...
 ```
 
-API controllers
-
-MVC controllers
+-API controllers
+-MVC controllers
 
 All queries include OrganizationId, and handlers return null if the request does not belong to the user’s organization.
 
+🔒Secure Password Storage
+Passwords are never stored in plain text.
+The system uses:
+-A unique salt per user
+-A secure hash
+-A dedicated verification method
+
+```csharp
+CreatePasswordHash(password, out hash, out salt);
+VerifyPasswordHash(password, hash, salt);
+```
+This protects user credentials even if the database were compromised.
 
 🔧 Strategy Pattern (Translation Engines)
 The system includes two translation engines:
@@ -106,23 +113,18 @@ Rotate => Text is replace using an old chiper technique.
 Used in CompleteTranslationRequestHandler.
 
 ✔️ Features
-User
-Register (auto‑assigned to Alpha or Beta)
 
-Login (email OR username)
-
-Logout
+User:
+-Register (auto‑assigned to Alpha or Beta)
+-Login (email OR username)
+-Logout
 
 Translation Requests
-Submit new request
-
-View own requests (“Mes demandes”)
-
-View translation details
-
-Complete translation (API)
-
-Organization isolation
+-Submit new request
+-View own requests (“Mes demandes”)
+-View translation details
+-Complete translation (API)
+-Organization isolation
 
 Processing Behavior (Simplified for Prototype)
 The test requires three statuses: Soumise, En traitement, Complétée.
@@ -131,23 +133,51 @@ The request briefly enters En traitement internally, then immediately becomes Co
 In a real production system, this step would be handled by a background worker or queue.
 This simplification is intentional and aligns with the test’s guideline to keep things simple.
 
-Security
-HTTPS redirection
+-Patterns
+-Strategy Pattern
+-Mediator Pattern (MediatR)
+-Repository Pattern
+-DTOs
+-FluentValidation
 
-JWT + Cookies
+🧭 Input Validation (FluentValidation)
+All user‑provided data is validated before processing:
 
-Claims-based authorization
+-Email format
+-Username length
+-Full name required
+-Password policy (length + special characters, configurable via appsettings)
 
-Patterns
-Strategy Pattern
+This prevents:
+-malformed input
+-weak passwords
+-accidental or malicious data injection
 
-Mediator Pattern (MediatR)
+🧱 Clean Architecture = Security by Design
+The project follows a strict layered architecture:
 
-Repository Pattern
+-Domain → pure business entities
+-Application → handlers, rules, validators
+-Infrastructure → EF Core, repositories
+-Web → controllers, authentication, routing
 
-DTOs
+This separation:
+-reduces side effects
+-prevents accidental data exposure
+-makes isolation rules easy to enforce
+-keeps authentication concerns out of business logic
 
-FluentValidation
+🧪 Security‑Relevant Tests
+Automated tests cover:
+
+-User registration
+-Login
+-Password validation
+-Translation request creation
+-Translation processing
+-Organization isolation (404 behavior)
+-Engine selection logic
+-These tests ensure that core protections remain intact as the code evolves.
 
 Database Setup
 1. Create database
